@@ -5,6 +5,10 @@ export default {
     extend: {
       colors: {
         primary: "#282828",
+        secondary:"#5937d2",
+        secondary_child:"#9381d3",
+        thertiary:"#aa28ca",
+        thertiary_child:"#f1e6f7",
       },
       height: {
         75: "300px",

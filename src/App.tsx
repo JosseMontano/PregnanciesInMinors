@@ -12,6 +12,11 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import LoginIcon from "./icons/login";
+import FormIcon from "./icons/form";
+import DataIcon from "./icons/data";
+import Card from "./components/card";
+import StadisticIcon from "./icons/stadistic";
 
 function App() {
   const data = [
@@ -55,20 +60,29 @@ function App() {
         </span>
       </div>
 
-      <div>
-        <h2 className="text-4xl">
-          Bienvenido,{" "}
-          <span className="block text-2xl">
-            Estadísticas de embarasos en adolescentes
-          </span>
-        </h2>
+      <div className="flex flex-col justify-center gap-3 h-lvh">
+        <div className="flex flex-row justify-between">
+          <div>
+            <h2 className="text-4xl">
+              Bienvenido,{" "}
+              <span className="block text-2xl">
+                Estadísticas de embarasos en adolescentes
+              </span>
+            </h2>
+          </div>
+
+          <div className="flex items-center justify-center mr-5 gap-3">
+            <LoginIcon />
+            <FormIcon />
+          </div>
+        </div>
 
         {/* first row */}
         <div className="flex flex-row gap-3">
           {/* first col */}
           <div className="w-72 h-64 bg-red-800 flex flex-col justify-between rounded-lg">
             <div>
-              <p className="absolute top-28 left-56 text-2xl">80.10%</p>
+              <p className="absolute top-44 left-56 text-2xl">80.10%</p>
             </div>
             <div>
               <img
@@ -110,6 +124,53 @@ function App() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        {/* Second row */}
+
+        <div className="flex flex-row gap-3">
+          <Card
+            Icon={DataIcon}
+            subtitle="Cantidad de datos"
+            title="200"
+            titleColor="text-secondary"
+            bgColor="bg-secondary_child"
+            description={
+              <>
+                Mas de 200{" "}
+                <span className="text-secondary_child">datos cargados</span>{" "}
+                para el analisis de embarazos
+              </>
+            }
+          />
+          <Card
+            Icon={StadisticIcon}
+            subtitle="Violacion"
+            title="10.4%"
+            titleColor="text-thertiary"
+            bgColor="bg-thertiary_child"
+            description={
+              <>
+               Porcentaje de {" "}
+                <span className="text-thertiary_child">mujeres</span>{" "}
+                que sufrieron una violacion
+              </>
+            }
+          />
+          <Card
+            Icon={DataIcon}
+            subtitle="Cantidad de datos"
+            title="200"
+            titleColor="text-secondary"
+            bgColor="bg-primary"
+            description={
+              <>
+                Mas de 200{" "}
+                <span className="text-secondary_child">datos cargados</span>{" "}
+                para el analisis de embarazos
+              </>
+            }
+          />
         </div>
       </div>
     </div>
