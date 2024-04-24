@@ -17,6 +17,7 @@ import FormIcon from "./icons/form";
 import DataIcon from "./icons/data";
 import Card from "./components/card";
 import StadisticIcon from "./icons/stadistic";
+import NaturalIcon from "./icons/natural";
 
 function App() {
   const data = [
@@ -151,23 +152,38 @@ function App() {
             bgColor="bg-thertiary_child"
             description={
               <>
-               Porcentaje de {" "}
-                <span className="text-thertiary_child">mujeres</span>{" "}
-                que sufrieron una violacion
+                Porcentaje de{" "}
+                <span className="text-thertiary_child">mujeres</span> que
+                sufrieron una violacion
               </>
             }
           />
           <Card
-            Icon={DataIcon}
-            subtitle="Cantidad de datos"
-            title="200"
-            titleColor="text-secondary"
-            bgColor="bg-primary"
+            Icon={NaturalIcon}
+            subtitle="Embarazo Natural"
+            title="62"
+            titleColor="text-quaternary"
+            bgColor="bg-quaternary"
             description={
               <>
-                Mas de 200{" "}
-                <span className="text-secondary_child">datos cargados</span>{" "}
-                para el analisis de embarazos
+                Porcentaje de personas{" "}
+                <span className="text-quaternary_child">que el embarazo</span>{" "}
+                fue deseado
+              </>
+            }
+          />
+
+          <Card
+            Icon={NaturalIcon}
+            subtitle="Abortos"
+            title="10.0%"
+            titleColor="text-quinary"
+            bgColor="bg-quinary_child"
+            description={
+              <>
+                Porcentaje de personas
+                <span className="text-quinary_child"> que hicieron</span> un
+                aborto
               </>
             }
           />
