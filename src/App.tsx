@@ -23,6 +23,7 @@ import Modal from "react-modal";
 import { useState } from "react";
 
 import Login from "./components/login";
+import AdolescentDataForm from "./components/form";
 
 
 const customStyles = {
@@ -40,7 +41,7 @@ const customStyles = {
 
 
 function App() {
- 
+
 
   const data = [
     {
@@ -85,6 +86,13 @@ function App() {
     setIsOpen(false);
   }
 
+  type contentModal = "login" | "form"
+  const [contentModal, setContentModal] = useState<contentModal>("login")
+  const handleChangeContentModal = (content: contentModal) => {
+    setContentModal(content)
+    openModal()
+  }
+
   return (
     <>
       <div className="flex flex-row gap-3">
@@ -106,10 +114,10 @@ function App() {
             </div>
 
             <div className="flex items-center justify-center mr-5 gap-3">
-              <span onClick={openModal}>
+              <span onClick={() => handleChangeContentModal("login")}>
                 <LoginIcon />
               </span>
-              <FormIcon />
+              <span onClick={() => handleChangeContentModal("form")}><FormIcon /></span>
             </div>
           </div>
 
@@ -232,7 +240,9 @@ function App() {
         style={customStyles}
         contentLabel="Example Modal"
       >
-        <Login closeModal={closeModal}/>
+
+        {contentModal === "login" && <Login closeModal={closeModal} />}
+        {contentModal === "form" && <AdolescentDataForm />}
       </Modal>
     </>
   );
