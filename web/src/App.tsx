@@ -24,6 +24,8 @@ import { useState } from "react";
 
 import Login from "./components/login";
 import FormComponent from "./components/form";
+import AdolescentDataForm from "./components/form";
+
 
 const customStyles = {
   content: {
@@ -39,6 +41,8 @@ const customStyles = {
 };
 
 function App() {
+
+
   const data = [
     {
       name: "Santa Cruz",
@@ -86,6 +90,12 @@ function App() {
   //modal to show
   type modalToShow = "login" | "form";
   const [modalToShow, setModalToShow] = useState<modalToShow>("login");
+  type contentModal = "login" | "form"
+  const [contentModal, setContentModal] = useState<contentModal>("login")
+  const handleChangeContentModal = (content: contentModal) => {
+    setContentModal(content)
+    openModal()
+  }
 
   return (
     <>
@@ -115,6 +125,10 @@ function App() {
                 {" "}
                 <FormIcon />
               </span>
+              <span onClick={() => handleChangeContentModal("login")}>
+                <LoginIcon />
+              </span>
+              <span onClick={() => handleChangeContentModal("form")}><FormIcon /></span>
             </div>
           </div>
 
@@ -240,6 +254,9 @@ function App() {
         <Login closeModal={closeModal} />
         {modalToShow === "login" && <Login closeModal={closeModal} />}
         {modalToShow === "form" && <FormComponent closeModal={closeModal} />}
+
+        {contentModal === "login" && <Login closeModal={closeModal} />}
+        {contentModal === "form" && <AdolescentDataForm />}
       </Modal>
     </>
   );
