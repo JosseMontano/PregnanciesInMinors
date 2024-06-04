@@ -23,7 +23,7 @@ import Modal from "react-modal";
 import { useState } from "react";
 
 import Login from "./components/login";
-
+import FormComponent from "./components/form";
 
 const customStyles = {
   content: {
@@ -38,10 +38,7 @@ const customStyles = {
   },
 };
 
-
 function App() {
- 
-
   const data = [
     {
       name: "Santa Cruz",
@@ -77,13 +74,18 @@ function App() {
 
   const [modalIsOpen, setIsOpen] = useState(false);
 
-  function openModal() {
+  function openModal(modalToShow: modalToShow) {
+    setModalToShow(modalToShow);
     setIsOpen(true);
   }
 
   function closeModal() {
     setIsOpen(false);
   }
+
+  //modal to show
+  type modalToShow = "login" | "form";
+  const [modalToShow, setModalToShow] = useState<modalToShow>("login");
 
   return (
     <>
@@ -106,10 +108,13 @@ function App() {
             </div>
 
             <div className="flex items-center justify-center mr-5 gap-3">
-              <span onClick={openModal}>
+              <span onClick={() => openModal("login")}>
                 <LoginIcon />
               </span>
-              <FormIcon />
+              <span onClick={() => openModal("form")}>
+                {" "}
+                <FormIcon />
+              </span>
             </div>
           </div>
 
@@ -232,7 +237,9 @@ function App() {
         style={customStyles}
         contentLabel="Example Modal"
       >
-        <Login closeModal={closeModal}/>
+        <Login closeModal={closeModal} />
+        {modalToShow === "login" && <Login closeModal={closeModal} />}
+        {modalToShow === "form" && <FormComponent closeModal={closeModal} />}
       </Modal>
     </>
   );
