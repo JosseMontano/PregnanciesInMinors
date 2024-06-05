@@ -183,3 +183,18 @@ async def first_time():
     data = df.to_dict('records')
     
     return {"data": data}
+
+@app.get("/type_pregnancies")
+async def type_pregnancies():
+    file_path = './data/typeEmbarazo.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+    # Rename the cols
+    df.columns = ['Tipo_embarazo', 'Porcentaje', 'Cantidad']
+    print(df)
+
+    data = df.to_dict('records')
+    
+    return {"data": data}
