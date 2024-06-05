@@ -14,18 +14,17 @@ import {
 } from "recharts";
 import LoginIcon from "./icons/login";
 import FormIcon from "./icons/form";
-import DataIcon from "./icons/data";
 import Card from "./components/card";
-import StadisticIcon from "./icons/stadistic";
-import NaturalIcon from "./icons/natural";
 
 import Modal from "react-modal";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import Login from "./components/login";
 import FormComponent from "./components/form";
-import AdolescentDataForm from "./components/form";
-
+import { getData } from "./utils/fetch";
+import { Stadistics } from "./interfaces/stadistics";
+import { FirstTime } from "./interfaces/firstTime";
+import { TypePregnancies } from "./interfaces/typePregnancies";
+import { handletypePregnancies } from "./utils/propertiesTypePregnancies";
 
 const customStyles = {
   content: {
@@ -41,40 +40,41 @@ const customStyles = {
 };
 
 function App() {
+  const [data, setData] = useState([]);
+  const [ageGroup, setAgeGroup] = useState("");
+  const [firstTime, setFirstTime] = useState([] as FirstTime[]);
+  const [typePregnancies, setTypePregnancies] = useState(
+    [] as TypePregnancies[]
+  );
 
+  const handleGetData = async () => {
+    const res = await getData("amount_of_cases");
+    const dataAux = res.map((item: Stadistics) => ({
+      name: item.Departamento,
+      uv: item.Cantidad,
+      pv: item.Cantidad,
+      amt: item.Cantidad,
+    }));
+    setData(dataAux);
 
-  const data = [
-    {
-      name: "Santa Cruz",
-      uv: 16,
-      pv: 17,
-      amt: 18,
-    },
-    {
-      name: "Cochabamba",
-      uv: 15,
-      pv: 16,
-      amt: 17,
-    },
-    {
-      name: "La paz",
-      uv: 14,
-      pv: 15,
-      amt: 16,
-    },
-    {
-      name: "Oruro",
-      uv: 13,
-      pv: 14,
-      amt: 15,
-    },
-    {
-      name: "Potosi",
-      uv: 12,
-      pv: 13,
-      amt: 14,
-    },
-  ];
+    const resAgeGroup = await getData("age_group");
+    setAgeGroup(resAgeGroup[0].Grupo_edades);
+
+    const resFirstTime = await getData("first_time");
+    setFirstTime(resFirstTime);
+
+    let resTypePregnancies = await getData("type_pregnancies");
+    //add icons
+    resTypePregnancies = resTypePregnancies.map((item: TypePregnancies) => {
+      return handletypePregnancies(item);
+    });
+
+    setTypePregnancies(resTypePregnancies);
+  };
+
+  useEffect(() => {
+    handleGetData();
+  }, []);
 
   const [modalIsOpen, setIsOpen] = useState(false);
 
@@ -88,20 +88,24 @@ function App() {
   }
 
   //modal to show
-  type modalToShow = "login" | "form";
+  type modalToShow = "login" | "form" | "first_time";
   const [modalToShow, setModalToShow] = useState<modalToShow>("login");
-  type contentModal = "login" | "form"
-  const [contentModal, setContentModal] = useState<contentModal>("login")
+  type contentModal = "login" | "form" | "first_time";
+  const [contentModal, setContentModal] = useState<contentModal>("login");
+
   const handleChangeContentModal = (content: contentModal) => {
-    setContentModal(content)
-    openModal()
-  }
+    setContentModal(content);
+    openModal(content);
+  };
 
   return (
     <>
       <div className="flex flex-row gap-3">
         <div className="w-36 h-lvh bg-primary flex items-center justify-center">
-          <span className="cursor-pointer">
+          <span
+            className="cursor-pointer"
+            onClick={() => handleChangeContentModal("first_time")}
+          >
             <Computer />
           </span>
         </div>
@@ -125,10 +129,6 @@ function App() {
                 {" "}
                 <FormIcon />
               </span>
-              <span onClick={() => handleChangeContentModal("login")}>
-                <LoginIcon />
-              </span>
-              <span onClick={() => handleChangeContentModal("form")}><FormIcon /></span>
             </div>
           </div>
 
@@ -137,7 +137,9 @@ function App() {
             {/* first col */}
             <div className="w-72 h-64 bg-red-800 flex flex-col justify-between rounded-lg">
               <div>
-                <p className="absolute top-44 left-56 text-2xl">80.10%</p>
+                <p className="absolute top-44 left-52 text-2xl">
+                  {ageGroup} años
+                </p>
               </div>
               <div>
                 <img
@@ -184,63 +186,23 @@ function App() {
           {/* Second row */}
 
           <div className="flex flex-row gap-3">
-            <Card
-              Icon={DataIcon}
-              subtitle="Cantidad de datos"
-              title="200"
-              titleColor="text-secondary"
-              bgColor="bg-secondary_child"
-              description={
-                <>
-                  Mas de 200{" "}
-                  <span className="text-secondary_child">datos cargados</span>{" "}
-                  para el analisis de embarazos
-                </>
-              }
-            />
-            <Card
-              Icon={StadisticIcon}
-              subtitle="Violacion"
-              title="10.4%"
-              titleColor="text-thertiary"
-              bgColor="bg-thertiary_child"
-              description={
-                <>
-                  Porcentaje de{" "}
-                  <span className="text-thertiary_child">mujeres</span> que
-                  sufrieron una violacion
-                </>
-              }
-            />
-            <Card
-              Icon={NaturalIcon}
-              subtitle="Embarazo Natural"
-              title="62"
-              titleColor="text-quaternary"
-              bgColor="bg-quaternary"
-              description={
-                <>
-                  Porcentaje de personas{" "}
-                  <span className="text-quaternary_child">que el embarazo</span>{" "}
-                  fue deseado
-                </>
-              }
-            />
-
-            <Card
-              Icon={NaturalIcon}
-              subtitle="Abortos"
-              title="10.0%"
-              titleColor="text-quinary"
-              bgColor="bg-quinary_child"
-              description={
-                <>
-                  Porcentaje de personas
-                  <span className="text-quinary_child"> que hicieron</span> un
-                  aborto
-                </>
-              }
-            />
+            {typePregnancies.map((item, index) => (
+              <Card
+                key={index}
+                Icon={item.Icon}
+                subtitle={item.Tipo_embarazo}
+                title={item.Porcentaje + "%"}
+                titleColor={item.Title}
+                bgColor={item.bgColor}
+                description={
+                  <>
+                    La cantidad de{" "}
+                    <span className={item.subtitle}>{item.Cantidad}</span>{" "}
+                    {item.description}
+                  </>
+                }
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -251,12 +213,25 @@ function App() {
         style={customStyles}
         contentLabel="Example Modal"
       >
-        <Login closeModal={closeModal} />
+        {/* <Login closeModal={closeModal} /> */}
         {modalToShow === "login" && <Login closeModal={closeModal} />}
         {modalToShow === "form" && <FormComponent closeModal={closeModal} />}
-
-        {contentModal === "login" && <Login closeModal={closeModal} />}
-        {contentModal === "form" && <AdolescentDataForm />}
+        {modalToShow === "first_time" && (
+          <div className="flex flex-col gap-3">
+            {firstTime.map((item, index) => (
+              <div key={index} className="flex gap-1">
+                <p>
+                  <span className="font-extrabold">Embarazos de: </span>
+                  {item.Rando_edad} años
+                </p>
+                <p>
+                  <span className="font-extrabold">son:</span> {item.Porcentaje}{" "}
+                  %
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </Modal>
     </>
   );
