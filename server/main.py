@@ -1,11 +1,18 @@
 from fastapi import FastAPI, UploadFile, File
-import pandas as pd
 from typing import Any, Dict
 import base64
 from PIL import Image
 import io
 import easyocr
 import pytesseract
+
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
 
 app = FastAPI()
 
@@ -36,3 +43,95 @@ async def convert_image_to_json(file: UploadFile = File(...)) -> Dict[str, Any]:
     result = pytesseract.image_to_string('img1.jpg')
     result = result.split('\n')  # Split the text at each newline
     return {"text": result}
+
+def predict_incidence(model, cases):
+    # Make a prediction based on the provided number of cases
+    predicted_incidence = model.predict([[cases]])
+    return predicted_incidence[0]
+
+@app.post("/predict_complication")
+async def predict_complication():
+    file_path = './data/complications.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+    # Display the first few rows of the DataFrame
+    print(df.head())
+
+    # Basic statistics of the numeric columns
+    print(df.describe())
+
+    # Check for missing values
+    print(df.isnull().sum())
+
+    # Let's do some basic analysis
+    # For example, let's find the average number of cases for each complication
+    average_cases = df.groupby('Complicaciones')['Numero_casos'].mean()
+    print(average_cases)
+
+    # Now, let's split the data into features and target variable
+    X = df[['Numero_casos']].values  # Features
+    y = df['incidencia'].values      # Target variable
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Now let's train a linear regression model
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    # Make predictions on the test set
+    y_pred = model.predict(X_test)
+
+    # Evaluate the model using mean squared error
+    mse = mean_squared_error(y_test, y_pred)
+    print("Mean Squared Error:", mse)
+
+
+    average_cases = df.groupby('Complicaciones')['Numero_casos'].mean()
+    print(average_cases)
+
+    # Now, let's split the data into features and target variable
+    X = df[['Numero_casos']].values  # Features
+    y = df['incidencia'].values      # Target variable
+
+    # Now let's train a linear regression model
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Now, let's predict incidence for each complication
+    complications = df['Complicaciones'].unique()
+    predictions = {}
+    for complication in complications:
+        total_cases_complication = df[df['Complicaciones'] == complication]['Numero_casos'].sum()
+        predicted_incidence_complication = predict_incidence(model, total_cases_complication)
+        predictions[complication] = predicted_incidence_complication
+
+    print("*****************")
+    print("Predicted incidences for each complication:")
+    for complication, incidence in predictions.items():
+        print(f"{complication}: {incidence} ")
+    return {"message": "hola"}
+
+
+@app.post("/amount_of_cases")
+async def amount_of_cases():
+    file_path = './data/cantidad_embarazos.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path, skiprows=range(1, 3))
+    
+    # Rename the cols
+    df.columns = ['Departamento', 'Total', 'Cantidad']
+
+    #Just 2 cols
+    df = df[['Departamento', 'Cantidad']]
+
+    data = df.to_dict('records')
+
+    # clean the first 2 rows
+    data = data[2:]
+    print(data)
+
+    return {"data":data}
