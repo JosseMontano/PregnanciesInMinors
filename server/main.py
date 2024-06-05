@@ -1,8 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from typing import Any, Dict
-import base64
 from PIL import Image
-import io
 import easyocr
 import pytesseract
 
@@ -12,9 +10,23 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",  # Origen permitido
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/convert_excel_to_json")
 async def convert_excel_to_json() -> Dict[str, Any]:
@@ -115,7 +127,7 @@ async def predict_complication():
     return {"message": "hola"}
 
 
-@app.post("/amount_of_cases")
+@app.get("/amount_of_cases")
 async def amount_of_cases():
     file_path = './data/cantidad_embarazos.xlsx'
 
@@ -134,4 +146,40 @@ async def amount_of_cases():
     data = data[2:]
     print(data)
 
-    return {"data":data}
+    return {"data": data}
+
+@app.get("/age_group")
+async def age_grup():
+    file_path = './data/cantidad_embarazos.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+    # Rename the cols
+    df.columns = ['Departamento', 'Total', 'Grupo_edades']
+
+    #Just 2 cols
+    df = df[['Grupo_edades']]
+
+    data = df.to_dict('records')
+
+    # just the 3 rows first
+    data = data[2:3]
+    
+    return {"data": data}
+
+
+@app.get("/first_time")
+async def first_time():
+    file_path = './data/first_time.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+    # Rename the cols
+    df.columns = ['Rando_edad', 'Porcentaje']
+    print(df)
+
+    data = df.to_dict('records')
+    
+    return {"data": data}
