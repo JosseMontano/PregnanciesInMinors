@@ -3,15 +3,16 @@ from typing import Any, Dict
 from PIL import Image
 import easyocr
 import pytesseract
+from fastapi.middleware.cors import CORSMiddleware
 
 
 import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from fastapi.middleware.cors import CORSMiddleware
 
+
+
+from fastapi import FastAPI
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression
 
 
 app = FastAPI()
@@ -198,3 +199,47 @@ async def type_pregnancies():
     data = df.to_dict('records')
     
     return {"data": data}
+
+
+@app.get("/complications")
+async def complications():
+    file_path = './data/complications.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+    # Drop the unwanted columns
+    df = df.drop(columns=['Unnamed: 1', 'Unnamed: 2'])
+
+    # Rename the cols
+
+    data = df.to_dict('records')
+    print(data)
+
+    return {"data": data}
+
+@app.get("/predict")
+async def predict():
+    file_path = './data/complications.xlsx'
+
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(file_path)
+
+     # Eliminar las columnas innecesarias
+    df_cleaned = df.drop(columns=['Unnamed: 1', 'Unnamed: 2'])
+    
+    # Suposición del total de personas en 2017
+    total_personas_2017 = 50000
+    
+    # Calcular el número de casos predichos para 2018 usando la incidencia
+    df_cleaned['prediccion_2018'] = df_cleaned['incidencia'] * total_personas_2017
+    
+    # Crear un nuevo DataFrame para 2018
+    df_2018 = df_cleaned.copy()
+    df_2018['anio'] = 2018
+    df_2018['numero_casos'] = df_2018['prediccion_2018'].astype(int)
+    
+    # Limpiar el DataFrame
+    df_2018 = df_2018.drop(columns=['prediccion_2018'])
+    
+    return {"data": df_2018.to_dict('records')}

@@ -46,6 +46,7 @@ function App() {
   const [typePregnancies, setTypePregnancies] = useState(
     [] as TypePregnancies[]
   );
+  const [complications, setComplications] = useState([]);
 
   const handleGetData = async () => {
     const res = await getData("amount_of_cases");
@@ -70,6 +71,20 @@ function App() {
     });
 
     setTypePregnancies(resTypePregnancies);
+
+    const resComplications = await getData("complications");
+    setComplications(resComplications);
+  };
+
+  const handleYearChange = async (val: string) => {
+    if (val == "2017") {
+      const resComplications = await getData("complications");
+      setComplications(resComplications);
+    } else {
+      const resComplications = await getData("predict");
+      console.log(resComplications);
+      setComplications(resComplications);
+    }
   };
 
   useEffect(() => {
@@ -101,7 +116,7 @@ function App() {
   return (
     <>
       <div className="flex flex-row gap-3">
-        <div className="w-36 h-lvh bg-primary flex items-center justify-center">
+        <div className="w-36 min-h-full bg-primary flex items-center justify-center">
           <span
             className="cursor-pointer"
             onClick={() => handleChangeContentModal("first_time")}
@@ -110,7 +125,7 @@ function App() {
           </span>
         </div>
 
-        <div className="flex flex-col justify-center gap-3 h-lvh">
+        <div className="flex flex-col justify-center gap-3">
           <div className="flex flex-row justify-between">
             <div>
               <h2 className="text-4xl">
@@ -137,7 +152,7 @@ function App() {
             {/* first col */}
             <div className="w-72 h-64 bg-red-800 flex flex-col justify-between rounded-lg">
               <div>
-                <p className="absolute top-44 left-52 text-2xl">
+                <p className="absolute top-36 left-52 text-2xl">
                   {ageGroup} años
                 </p>
               </div>
@@ -203,6 +218,57 @@ function App() {
                 }
               />
             ))}
+          </div>
+
+          {/* Third row */}
+          <div className="flex flex-row gap-3 mb-5">
+            <div>
+              <h2 className="text-4xl">
+                Complicaciones{" "}
+                <span className="block text-2xl">
+                  principales en embarasos de adolescentes
+                </span>
+              </h2>
+
+              <select
+                onChange={(e) => handleYearChange(e.target.value)}
+                className="mt-3 text-black bg-white px-3 py-2 rounded border border-gray-300 shadow"
+              >
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+              </select>
+
+              <div className="text-white min-w-max">
+                <table className="min-w-full table-auto">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2">Complicaciones</th>
+                      <th className="px-4 py-2">Numero de Casos</th>
+                      <th className="px-4 py-2">Incidencia</th>
+                      <th className="px-4 py-2">Año</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {complications &&
+                      complications.map((row, i) => (
+                        <tr
+                          key={i}
+                          className={i % 2 === 0 ? "bg-gray-700" : ""}
+                        >
+                          <td className="border px-4 py-2">
+                            {row.complicaciones}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {row.numero_casos}
+                          </td>
+                          <td className="border px-4 py-2">{row.incidencia}</td>
+                          <td className="border px-4 py-2">{row.anio}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
